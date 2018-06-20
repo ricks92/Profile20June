@@ -2,6 +2,8 @@ package com.hsc.cat.controller;
 
 import java.util.List;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -9,21 +11,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hsc.cat.TO.SearchSkillTOList;
 import com.hsc.cat.TO.SkillTO;
 import com.hsc.cat.VO.AddSkillVO;
+import com.hsc.cat.enums.SkillCategoryEnum;
+import com.hsc.cat.enums.SkillSubCategoryEnum;
 import com.hsc.cat.service.SkillService;
 import com.hsc.cat.utilities.JSONOutputEnum;
 import com.hsc.cat.utilities.JSONOutputModel;
 import com.hsc.cat.utilities.RESTURLConstants;
-
-
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RestController
 @CrossOrigin
@@ -111,6 +111,73 @@ public class SkillController {
 			output.setMessage("Skill does not exist!!!");
 			LOGGER.error("Skill does not exist!!!");
 		}
+		
+		return output;
+	}
+	
+	
+	
+	@ResponseBody
+	@RequestMapping(value=RESTURLConstants.FETCH_SKILLS_IN_A_CATEGORY,method=RequestMethod.GET)
+	@CrossOrigin
+	public JSONOutputModel fetchSkillsInACategory(@PathVariable("skillCategory")int skillCategory) {
+		JSONOutputModel output = new JSONOutputModel();
+		List<SkillTO> skillTOList=skillService.fetchSkillsInACategory(skillCategory);
+		output.setData(skillTOList);
+		if(skillTOList!=null && !skillTOList.isEmpty()) {
+			output.setMessage("Skills fetched in skill category:"+SkillCategoryEnum.getTechnologyNameFromNumber(skillCategory));
+			output.setStatus(JSONOutputEnum.SUCCESS.getValue());
+		}
+		
+		else {
+			output.setMessage("No skill in skill category:"+SkillCategoryEnum.getTechnologyNameFromNumber(skillCategory));
+			output.setStatus(JSONOutputEnum.FAILURE.getValue());
+		}
+		
+		return output;
+	}
+	
+	
+	@ResponseBody
+	@RequestMapping(value=RESTURLConstants.FETCH_SKILLS_IN_A_CATEGORY_SUBCATEGORY,method=RequestMethod.GET)
+	@CrossOrigin
+	public JSONOutputModel fetchSkillsInACategorySubcategory(@RequestParam("skillCategory")int skillCategory,@RequestParam("skillSubCategory")int skillSubCategory) {
+		JSONOutputModel output = new JSONOutputModel();
+		List<SkillTO> skillTOList=skillService.fetchSkillsInACategorySubcategory(skillCategory, skillSubCategory);
+		output.setData(skillTOList);
+		if(skillTOList!=null && !skillTOList.isEmpty()) {
+			output.setMessage("Skills fetched in skill category:"+SkillCategoryEnum.getTechnologyNameFromNumber(skillCategory) +" and subCategory: "+SkillSubCategoryEnum.getTechnologyNameFromNumber(skillSubCategory));
+			output.setStatus(JSONOutputEnum.SUCCESS.getValue());
+		}
+		
+		else {
+			output.setMessage("No skill found in skill category:"+SkillCategoryEnum.getTechnologyNameFromNumber(skillCategory) +" and subCategory: "+SkillSubCategoryEnum.getTechnologyNameFromNumber(skillSubCategory));
+			output.setStatus(JSONOutputEnum.FAILURE.getValue());
+		}
+		
+		return output;
+	}
+	
+	/*
+	 * To populate dropdown in profile
+	 * with skills of other domains
+	 */
+	@ResponseBody
+	@RequestMapping(value="cat/fetchSkillsNotInACategory/{role}",method=RequestMethod.GET)
+	@CrossOrigin
+	public JSONOutputModel fetchSkillsNotInACategory(@PathVariable("role")int role) {
+		JSONOutputModel output = new JSONOutputModel();
+		List<String> skillList=skillService.fetchSkillsNotInACategory(role);
+		output.setData(skillList);
+		if(skillList!=null && !skillList.isEmpty()) {
+			output.setMessage("Other domain skills fetched successfully");
+			output.setStatus(JSONOutputEnum.SUCCESS.getValue());
+		}
+		else {
+			output.setMessage("No skills there in other doamins");
+			output.setStatus(JSONOutputEnum.FAILURE.getValue());
+		}
+		
 		
 		return output;
 	}

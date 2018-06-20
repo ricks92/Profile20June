@@ -8,6 +8,24 @@ public class AddSkillVO {
 
 	private String description;
 
+	private String skillCategory;
+	private String skillSubCategory;
+
+	public String getSkillCategory() {
+		return skillCategory;
+	}
+
+	public void setSkillCategory(String skillCategory) {
+		this.skillCategory = skillCategory;
+	}
+
+	public String getSkillSubCategory() {
+		return skillSubCategory;
+	}
+
+	public void setSkillSubCategory(String skillSubCategory) {
+		this.skillSubCategory = skillSubCategory;
+	}
 
 	public String getSkillName() {
 		return skillName;

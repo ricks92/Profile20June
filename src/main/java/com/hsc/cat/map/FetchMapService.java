@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.hsc.cat.entity.EmployeeSkillEntity;
 import com.hsc.cat.entity.Skill;
-import com.hsc.cat.enums.LevelsEnum;
+import com.hsc.cat.enums.CompetencyLevelsEnum;
 import com.hsc.cat.repository.EmployeeSkillRepository;
 import com.hsc.cat.repository.SkillRepository;
 
@@ -128,7 +128,7 @@ public class FetchMapService {
 		    	int skillId=skillRepository.findSkillIdBySkillNameCustom(entry.getValue());
 		    	String rating=employeeSkillRepository.getSpecificRating(empId, weekNumbersSelf.get(i), skillId, "Self");
 		    	if(rating!=null)
-		    	selfreviewmap.put("value"+skillId, ""+LevelsEnum.getLevelFromName(rating));
+		    	selfreviewmap.put("value"+skillId, ""+CompetencyLevelsEnum.getLevelFromName(rating));
 		    }
 		    listOfselfReviews.add(selfreviewmap);
 			//System.out.println("\n\n\nselfreviewmap:"+selfreviewmap);
@@ -163,7 +163,7 @@ public class FetchMapService {
 		    	String rating=employeeSkillRepository.getSpecificRating(empId, weekNumbersPeer.get(i), skillId, "Peer");
 		    	//System.out.println("skill "+skillId+" has rating:"+rating);
 		    	if(rating!=null)
-		    	peerreviewmap.put("value"+skillId, ""+LevelsEnum.getLevelFromName(rating));
+		    	peerreviewmap.put("value"+skillId, ""+CompetencyLevelsEnum.getLevelFromName(rating));
 		    }
 			listOfpeerReviews.add(peerreviewmap);
 			//System.out.println("\n\n\npeerreviewmap:"+peerreviewmap);

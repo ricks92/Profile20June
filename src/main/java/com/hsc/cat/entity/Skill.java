@@ -38,6 +38,11 @@ public class Skill {
 	@Column(name="updation_date")
 	private Date updationDate;
 	
+	@Column(name="skill_category")
+	private String skillCategory;
+	
+	@Column(name="skill_sub_category")
+	private String skillSubCategory;
 	
 	/*@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH,
 			CascadeType.REFRESH })
@@ -82,6 +87,22 @@ public class Skill {
 
 	public void setUpdationDate(Date updationDate) {
 		this.updationDate = updationDate;
+	}
+
+	public String getSkillCategory() {
+		return skillCategory;
+	}
+
+	public void setSkillCategory(String skillCategory) {
+		this.skillCategory = skillCategory;
+	}
+
+	public String getSkillSubCategory() {
+		return skillSubCategory;
+	}
+
+	public void setSkillSubCategory(String skillSubCategory) {
+		this.skillSubCategory = skillSubCategory;
 	}
 
 	

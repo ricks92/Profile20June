@@ -78,6 +78,8 @@ public class UserDetailService {
 						responseTO.setLastName(emp.getLastName());
 						responseTO.setRole(user.getRole());
 						responseTO.setUserName(user.getUsername());
+						responseTO.setDepartment(emp.getDepartment());
+						responseTO.setEmailId(emp.getEmail());
 						break;
 					} else {
 

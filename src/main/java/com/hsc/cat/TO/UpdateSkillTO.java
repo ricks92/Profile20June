@@ -19,7 +19,7 @@ public class UpdateSkillTO {
 	@JsonIgnore
 	public int issue;
 	
-	
+	private int sdlcCategory;
 	private Date creationDate;
 	
 	private String creationDateString;
@@ -94,6 +94,12 @@ public class UpdateSkillTO {
 	}
 	public void setCreationDateString(String creationDateString) {
 		this.creationDateString = creationDateString;
+	}
+	public int getSdlcCategory() {
+		return sdlcCategory;
+	}
+	public void setSdlcCategory(int sdlcCategory) {
+		this.sdlcCategory = sdlcCategory;
 	}
 	
 	

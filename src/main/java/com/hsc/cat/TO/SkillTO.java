@@ -22,6 +22,27 @@ public class SkillTO {
 	@JsonIgnore
 	private String issue;
 	
+	
+	private String skillCategory;
+	private String skillSubCategory;
+
+	public String getSkillCategory() {
+		return skillCategory;
+	}
+
+	public void setSkillCategory(String skillCategory) {
+		this.skillCategory = skillCategory;
+	}
+
+	public String getSkillSubCategory() {
+		return skillSubCategory;
+	}
+
+	public void setSkillSubCategory(String skillSubCategory) {
+		this.skillSubCategory = skillSubCategory;
+	}
+	
+	
 	public int getSkillId() {
 		return skillId;
 	}

@@ -42,6 +42,9 @@ public class EmployeeSkillEntity {
 	@Column(name = "creation_date")
 	private Date creationDate;
 
+	@Column(name = "sdlc_category")
+	private String sdlcCategory;
+	
 	public int getId() {
 		return id;
 	}
@@ -116,12 +119,25 @@ public class EmployeeSkillEntity {
 		this.creationDate = creationDate;
 	}
 
+	
+
+	public String getSdlcCategory() {
+		return sdlcCategory;
+	}
+
+	public void setSdlcCategory(String sdlcCategory) {
+		this.sdlcCategory = sdlcCategory;
+	}
+
 	@Override
 	public String toString() {
 		return "EmployeeSkillEntity [id=" + id + ", empId=" + empId + ", skillId=" + skillId + ", weekNumber="
 				+ weekNumber + ", rating=" + rating + ", ratingDoneBy=" + ratingDoneBy + ", comment=" + comment
-				+ ", ratingDoneByEmpId=" + ratingDoneByEmpId + ", creationDate=" + creationDate + "]";
+				+ ", ratingDoneByEmpId=" + ratingDoneByEmpId + ", creationDate=" + creationDate + ", sdlcCategory="
+				+ sdlcCategory + "]";
 	}
+
+	
 
 	
 	

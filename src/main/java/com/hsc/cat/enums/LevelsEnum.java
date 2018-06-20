@@ -2,14 +2,12 @@ package com.hsc.cat.enums;
 
 public enum LevelsEnum {
 
-	
-	 NOVICE(1,"Novice"),
-	 BEGINNER(2,"Beginner"),
-	 PRACTITIONER(3,"Practitioner"),
-	 COACH(4,"Coach"),
-	 LEADER(5,"Leader"),
-	 CANNOT_ASSESS(0,"Cannot Assess");
-	
+	T1(1,"T1"),
+	T2(2,"T2"),
+	T3(3,"T3"),
+	T4(4,"T4"),
+	T5(5,"T5"),
+	T6(6,"T6");
 	
 	int level;
 	String levelName;
@@ -35,32 +33,5 @@ public enum LevelsEnum {
 		this.levelName = levelName;
 	}
 	
-	public static int getLevelFromName(String levelName) {
-		LevelsEnum[] array=LevelsEnum.values();
-		int level=0;
-		for(int i=0;i<array.length;i++) {
-			if(array[i].getLevelName().equalsIgnoreCase(levelName)) {
-				level=array[i].getLevel();
-			}
-		}
-		
-		return level;
-	}
 	
-	
-	
-	public static String getLevelNameFromLevel(int level) {
-		LevelsEnum[] array=LevelsEnum.values();
-		String levelName="";
-		for(int i=0;i<array.length;i++) {
-			
-			if(array[i].getLevel()==level) {
-				
-				levelName=array[i].getLevelName();
-			}
-		}
-		
-		
-		return levelName;
-	}
 }

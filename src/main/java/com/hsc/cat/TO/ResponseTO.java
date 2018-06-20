@@ -8,6 +8,8 @@ public class ResponseTO {
 	private String firstName;
 	private String lastName;
 	private String userName;
+	private String department;
+	private String emailId;
 	
 public String getResponseCode() {
 		return responseCode;
@@ -44,6 +46,18 @@ public String getResponseCode() {
 	}
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+	public String getDepartment() {
+		return department;
+	}
+	public void setDepartment(String department) {
+		this.department = department;
+	}
+	public String getEmailId() {
+		return emailId;
+	}
+	public void setEmailId(String emailId) {
+		this.emailId = emailId;
 	}
 	
 

@@ -1,8 +1,10 @@
 package com.hsc.cat.enums;
 
+
+//New class added
 public enum RoleCategoryEnum {
-	FRONTEND_DEVELOPER(1, "Fronteend Developer"), BACKEND_DEVELOPER(2, "Backend Developer"), FULLSTACK_DEVELOPER(3,
-			"Fullstack Developer"), MANUAL_TESTER(4, "Manual Tester"), AUTOMATION_TESTER(4, "Automation Tester");
+	BACKEND_DEVELOPER(1, "BACKEND DEVELOPER"), FRONTEND_DEVELOPER(2, "FRONTEND DEVELOPER"), FULLSTACK_DEVELOPER(3,
+			"FULLSTACK DEVELOPER"), MANUAL_TESTER(4, "MANUAL TESTER"), AUTOMATION_TESTER(5, "AUTOMATION TESTER"),INVALID(6,"INVALID");
 	int value;
 	String name;
 
@@ -25,6 +27,20 @@ public enum RoleCategoryEnum {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	
+
+	public static String getProjectRoleNameFromNumber(int v) {
+		RoleCategoryEnum roleCategoryEnumArray[]= RoleCategoryEnum.values();
+		String name="INVALID";
+		for(RoleCategoryEnum sk:roleCategoryEnumArray) {
+			if(sk.getValue()==v) {
+				name=sk.getName();
+			}
+		}
+		
+		return name;
 	}
 
 }

@@ -13,7 +13,7 @@ public class ViewSkillTO {
 	private String ratingDoneByEmpId;
 	private Date creationDate;
 	private String creationDateString;
-	
+	private int sdlcCategory;
 	
 	
 	public int getSkillId() {
@@ -76,6 +76,12 @@ public class ViewSkillTO {
 	}
 	public void setCreationDateString(String creationDateString) {
 		this.creationDateString = creationDateString;
+	}
+	public int getSdlcCategory() {
+		return sdlcCategory;
+	}
+	public void setSdlcCategory(int sdlcCategory) {
+		this.sdlcCategory = sdlcCategory;
 	}
 
 	

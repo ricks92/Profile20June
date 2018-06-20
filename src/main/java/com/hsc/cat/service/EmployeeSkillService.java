@@ -5,18 +5,22 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hsc.cat.TO.MapTO;
+import com.hsc.cat.TO.PeercommentPlusDateListTO;
+import com.hsc.cat.TO.SelfRatedSkillsTO;
 import com.hsc.cat.TO.SkillTO;
 import com.hsc.cat.TO.SubjectTO;
 import com.hsc.cat.TO.UpdateSkillResponse;
@@ -28,7 +32,8 @@ import com.hsc.cat.VO.UpdateSkillVO;
 import com.hsc.cat.VO.UpdateSkillsListVO;
 import com.hsc.cat.entity.EmployeeSkillEntity;
 import com.hsc.cat.entity.Skill;
-import com.hsc.cat.enums.LevelsEnum;
+import com.hsc.cat.enums.CompetencyLevelsEnum;
+import com.hsc.cat.enums.SdlcCategory;
 import com.hsc.cat.repository.EmployeeDetailRepository;
 import com.hsc.cat.repository.EmployeeSkillRepository;
 import com.hsc.cat.repository.SkillRepository;
@@ -49,6 +54,9 @@ public class EmployeeSkillService {
 	private SkillRepository skillRepository;
 	@Autowired
 	private SkillService skillService;
+	
+	@PersistenceContext
+	private EntityManager entityManager;
 	
 	public UpdateSkillResponse updateSkill(UpdateSkillsListVO updateSkillsListVO) {
 		
@@ -156,20 +164,21 @@ else
 		for(UpdateSkillVO updateSkillVO:updateSkillVOList) {
 			
 		//	if(employeeSkillRepository.exists(updateSkillVO.getSkillId())) {
-				EmployeeSkillEntity recordExists=employeeSkillRepository.findByEmpIdAndSkillIdAndWeekNumberAndRatingDoneByAndRatingDoneByEmpId(updateSkillVO.getEmpId(), updateSkillVO.getSkillId(), updateSkillVO.getWeekNumber(), updateSkillVO.getRatingDoneBy(),updateSkillVO.getRatingDoneByEmpId());
+				EmployeeSkillEntity recordExists=employeeSkillRepository.findByEmpIdAndSkillIdAndWeekNumberAndRatingDoneByAndRatingDoneByEmpIdAndSdlcCategory(updateSkillVO.getEmpId(), updateSkillVO.getSkillId(), updateSkillVO.getWeekNumber(), updateSkillVO.getRatingDoneBy(),updateSkillVO.getRatingDoneByEmpId(),SdlcCategory.getSdlcCategoryName(updateSkillVO.getSdlcCategory()));
 				
 				if(recordExists==null) {
 					LOGGER.debug("Creating new row for rating and comments..Rating \"+updateSkillVO.getEmpId()+\" Feedback is being given by \"+updateSkillVO.getRatingDoneByEmpId()");
 					EmployeeSkillEntity updateSkillEntity= new EmployeeSkillEntity();
 					updateSkillEntity.setEmpId(updateSkillVO.getEmpId());
 					updateSkillEntity.setSkillId(updateSkillVO.getSkillId());
-					updateSkillEntity.setRating(LevelsEnum.getLevelNameFromLevel(updateSkillVO.getRating()));
+					updateSkillEntity.setRating(CompetencyLevelsEnum.getLevelNameFromLevel(updateSkillVO.getRating()));
 					updateSkillEntity.setWeekNumber(updateSkillVO.getWeekNumber());
 					updateSkillEntity.setComment(updateSkillVO.getComment());
 					updateSkillEntity.setRatingDoneBy(updateSkillVO.getRatingDoneBy());
 					updateSkillEntity.setRatingDoneByEmpId(updateSkillVO.getRatingDoneByEmpId());
 					updateSkillEntity.setCreationDate(new Date());
 					updateSkillEntity.setComment(updateSkillVO.getComment());
+					updateSkillEntity.setSdlcCategory(SdlcCategory.getSdlcCategoryName(updateSkillVO.getSdlcCategory()));
 					System.out.println("\n\n\n\nDate is:"+new Date());
 					employeeSkillRepository.save(updateSkillEntity);
 					
@@ -180,11 +189,11 @@ else
 					LOGGER.debug("Updating already existing rating and comments..Rating "+updateSkillVO.getEmpId()+" Feedback is being given by "+updateSkillVO.getRatingDoneByEmpId());
 					
 					Date date = new Date();
-				employeeSkillRepository.updateEmployeeSkill(updateSkillVO.getSkillId(), LevelsEnum.getLevelNameFromLevel(updateSkillVO.getRating()),updateSkillVO.getComment(),updateSkillVO.getWeekNumber(),updateSkillVO.getRatingDoneBy(),date,updateSkillVO.getEmpId(),updateSkillVO.getRatingDoneByEmpId());
+				employeeSkillRepository.updateEmployeeSkill(updateSkillVO.getSkillId(), CompetencyLevelsEnum.getLevelNameFromLevel(updateSkillVO.getRating()),updateSkillVO.getComment(),updateSkillVO.getWeekNumber(),updateSkillVO.getRatingDoneBy(),date,updateSkillVO.getEmpId(),updateSkillVO.getRatingDoneByEmpId(),SdlcCategory.getSdlcCategoryName(updateSkillVO.getSdlcCategory()));
 				
 				
 				
-				EmployeeSkillEntity updateSkillEntity=employeeSkillRepository.findByEmpIdAndSkillIdAndWeekNumberAndRatingDoneByAndRatingDoneByEmpId(updateSkillVO.getEmpId(), updateSkillVO.getSkillId(), updateSkillVO.getWeekNumber(), updateSkillVO.getRatingDoneBy(),updateSkillVO.getRatingDoneByEmpId());
+				EmployeeSkillEntity updateSkillEntity=employeeSkillRepository.findByEmpIdAndSkillIdAndWeekNumberAndRatingDoneByAndRatingDoneByEmpIdAndSdlcCategory(updateSkillVO.getEmpId(), updateSkillVO.getSkillId(), updateSkillVO.getWeekNumber(), updateSkillVO.getRatingDoneBy(),updateSkillVO.getRatingDoneByEmpId(),SdlcCategory.getSdlcCategoryName(updateSkillVO.getSdlcCategory()));
 				
 				
 				System.out.println("\n\n\n"+updateSkillEntity.toString());
@@ -344,25 +353,62 @@ else
 			
 			String selfComment=null;
 			String peerComment=null;
+			Date selfCommentDate=null;
 //			String selfComment=employeeSkillRepository.getLatestSelfComment(empid).get(0);
 //			String peerComment=employeeSkillRepository.getLatestPeerComment(empid).get(0);
 			List<String> selfCommentList=employeeSkillRepository.getLatestSelfComment(empid);
+			List<Date> selfCommentDateList=employeeSkillRepository.getLatestSelfCommentDate(empid);
 			if(selfCommentList!=null && !selfCommentList.isEmpty())
 				{
 				LOGGER.debug("Latest self comment fetched for: "+empid);
 				selfComment=selfCommentList.get(0);
 				}
 			
-			List<String> peerCommentList=employeeSkillRepository.getLatestPeerComment(empid);
+			if(selfCommentDateList!=null && !selfCommentDateList.isEmpty())
+			{
+			
+				selfCommentDate=selfCommentDateList.get(0);
+			}
+			
+			/*List<String> peerCommentList=employeeSkillRepository.getLatestPeerComment(empid);
 			if(peerCommentList!=null && !peerCommentList.isEmpty())
 				{
 				LOGGER.debug("Latest peer comment fetched for: "+empid);
 				peerComment=peerCommentList.get(0);
 				}
-			
+			*/
 			
 		  skillsList.setSelfComment(selfComment);
-		  skillsList.setPeerComment(peerComment);
+		 // skillsList.setPeerComment(peerComment);
+		  
+		  //To get list of peer comments :: default to latest 10
+		  String queryString="select distinct comment,creationDate from EmployeeSkillEntity e where e.empId=:empId and  e.ratingDoneBy='Peer' order by e.creationDate desc";
+		  Query query=entityManager.createQuery(queryString);
+		  query.setParameter("empId", empid);
+		  query.setMaxResults(10);
+		  
+		  List<Object[]> fetchedResult=query.getResultList();
+		  List<PeercommentPlusDateListTO> peercommentPlusDateList=new ArrayList<>();
+		  List<String> peerCommentList=new ArrayList<>();
+		  List<Date> peerCommentDateList=new ArrayList<>();
+		  
+		  for(int i=0;i<fetchedResult.size();i++)
+		  {
+			 Object[] ob=fetchedResult.get(i);
+			 peerCommentList.add((String) ob[0]);
+			 peerCommentDateList.add( (Date) ob[1]);
+			 PeercommentPlusDateListTO temp=new PeercommentPlusDateListTO();
+			 temp.setComment((String) ob[0]);
+			temp.setTimestamp((Date) ob[1]);
+			 
+			 peercommentPlusDateList.add(temp);
+		  }
+		  
+		  skillsList.setPeercomments(peerCommentList);
+		  skillsList.setPeercommentsDate(peerCommentDateList);
+		  skillsList.setSelfCommentTime(selfCommentDate);
+		  skillsList.setPeercommentPlusDateList(peercommentPlusDateList);
+		  
 		return skillsList;
 	}
 	
@@ -435,7 +481,7 @@ else
 	List<SubjectTO> subjectsList= new ArrayList<>();
 	for(EmployeeSkillEntity e: employeeSkillsList) {
 		SubjectTO subjectTO=new SubjectTO();
-		subjectTO.setRating(LevelsEnum.getLevelFromName(e.getRating()));
+		subjectTO.setRating(CompetencyLevelsEnum.getLevelFromName(e.getRating()));
 		subjectTO.setWeekNumber(e.getWeekNumber());
 		subjectsList.add(subjectTO);
 		}
@@ -453,7 +499,7 @@ else
    
    
    
-   public List<SkillTO> getAllSelfRatedSkills(String empId){
+  /* public List<SkillTO> getAllSelfRatedSkills(String empId){
 	 //  List<String> list=new ArrayList<>();
 	   List<SkillTO> skillTOList=new ArrayList<>();
 	   List<EmployeeSkillEntity> employeeSkillEntityList=employeeSkillRepository.getAllSelfRatedSkillsCustom(empId);
@@ -473,9 +519,75 @@ else
 		 skillTOList.add(skillTO);
 	  }
 	   return skillTOList;
-   }
+   }*/
    
    
+   
+   public List<SelfRatedSkillsTO> getAllSelfRatedSkills(String empId,int sdlcCategoryNum){
+		 LOGGER.debug("Request came to view all self rated skills of employee:"+empId+ " for SDLC phase:"+SdlcCategory.getSdlcCategoryName(sdlcCategoryNum));
+		   List<SelfRatedSkillsTO> skillTOList=new ArrayList<>();
+		   List<EmployeeSkillEntity> employeeSkillEntityList=employeeSkillRepository.getAllSelfRatedSkillsCustom(empId);
+		   
+		   String sdlcCategory=SdlcCategory.getSdlcCategoryName(sdlcCategoryNum);
+		   
+		  /* HashMap<Skill,Object> map=new HashMap<>();
+		   for(EmployeeSkillEntity e:employeeSkillEntityList ) {
+			   int skillId=e.getSkillId();
+			   Skill skill=skillRepository.findOne(skillId);
+			  // String skillName=skill.getSkillName();
+			   map.put(skill, null);
+		   }
+		   
+		   System.out.println("MAP:"+map);
+		   
+		  for(Entry<Skill, Object> entry:map.entrySet()) {
+			 SkillTO skillTO=skillService.modelConversion(entry.getKey());
+			 skillTOList.add(skillTO);
+		  }*/
+		   
+//		   String weekQueryString="select weekNumber from EmployeeSkillEntity where sdlcCategory=:sdlcCategory order by weekNumber desc";
+//		   Query queryWeek=entityManager.createQuery(weekQueryString);
+//		   queryWeek.setParameter("sdlcCategory", sdlcCategory);
+//		   queryWeek.setMaxResults(1);
+//		   
+//		   int weekNumber=(int) queryWeek.getResultList().get(0);
+		   
+		   
+		 //  System.out.println("\n\n\n***"+weekNumber);
+		   String queryString="select a.skillId,a.rating from EmployeeSkillEntity a where a.ratingDoneBy='Self' and a.empId=:empId and a.sdlcCategory=:sdlcCategory order by a.weekNumber desc";
+		   Query query=entityManager.createQuery(queryString);
+		   query.setParameter("empId", empId);
+		   query.setParameter("sdlcCategory", sdlcCategory);
+		   List<Object[]> objectsList=query.getResultList();
+		   HashMap<Integer,Integer> map=new HashMap<>(); //Key=skillId and value=rating
+		   
+		   /*
+		    * If rating already exists don't overwrite.
+		    * Get latest ratings per skill
+		    */
+		   for(int i=0;i<objectsList.size();i++)
+		   {
+			   Object[] ob=objectsList.get(i);
+			   int skillId=(int) ob[0];
+			   int rating=CompetencyLevelsEnum.getLevelFromName((String) ob[1]);
+			   if(map.containsKey(skillId)) {
+				   continue;
+			   }
+			   else {
+				   map.put(skillId, rating);
+			   }
+			   Skill skill=skillRepository.findBySkillId(skillId);
+			   SelfRatedSkillsTO selfRatedSkillsTO= new SelfRatedSkillsTO();
+			   selfRatedSkillsTO.setEmpid(empId);
+			   selfRatedSkillsTO.setSkillId(skillId);
+			   selfRatedSkillsTO.setSkillName(skill.getSkillName());
+			   selfRatedSkillsTO.setDescription(skill.getDescription());
+			   selfRatedSkillsTO.setRating(rating);
+			   selfRatedSkillsTO.setSdlcCategory(sdlcCategoryNum);
+			   skillTOList.add(selfRatedSkillsTO);
+		   }
+		   return skillTOList;
+	   }
    
    
   public ViewSkillListTO getViewHistory(String empid) {
@@ -525,25 +637,61 @@ else
 			 
 			 String selfComment=null;
 				String peerComment=null;
+				Date selfCommentDate=null;
 //				String selfComment=employeeSkillRepository.getLatestSelfComment(empid).get(0);
 //				String peerComment=employeeSkillRepository.getLatestPeerComment(empid).get(0);
 				List<String> selfCommentList=employeeSkillRepository.getLatestSelfComment(empid);
+				List<Date> selfCommentDateList=employeeSkillRepository.getLatestSelfCommentDate(empid);
 				if(selfCommentList!=null && !selfCommentList.isEmpty())
 					{
 					LOGGER.debug("Latest self comment fetched for: "+empid);
 					selfComment=selfCommentList.get(0);
 					}
 				
-				List<String> peerCommentList=employeeSkillRepository.getLatestPeerComment(empid);
+				if(selfCommentDateList!=null && !selfCommentDateList.isEmpty())
+				{
+				
+					selfCommentDate=selfCommentDateList.get(0);
+				}
+				
+			/*	List<String> peerCommentList=employeeSkillRepository.getLatestPeerComment(empid);
 				if(peerCommentList!=null && !peerCommentList.isEmpty())
 					{
 					LOGGER.debug("Latest peer comment fetched for: "+empid);
 					peerComment=peerCommentList.get(0);
-					}
+					}*/
 				
 				
 			  skillsList.setSelfComment(selfComment);
-			  skillsList.setPeerComment(peerComment);
+			 // skillsList.setPeerComment(peerComment);
+			  
+			  //To get list of peer comments :: default to latest 10
+			  String queryString="select distinct comment,creationDate from EmployeeSkillEntity e where e.empId=:empId and  e.ratingDoneBy='Peer' order by e.creationDate desc";
+			  Query query=entityManager.createQuery(queryString);
+			  query.setParameter("empId", empid);
+			  query.setMaxResults(10);
+			  
+			  List<Object[]> fetchedResult=query.getResultList();
+			  List<PeercommentPlusDateListTO> peercommentPlusDateList=new ArrayList<>();
+			  List<String> peerCommentList=new ArrayList<>();
+			  List<Date> peerCommentDateList=new ArrayList<>();
+			  
+			  for(int i=0;i<fetchedResult.size();i++)
+			  {
+				 Object[] ob=fetchedResult.get(i);
+				 peerCommentList.add((String) ob[0]);
+				 peerCommentDateList.add( (Date) ob[1]);
+				 PeercommentPlusDateListTO temp=new PeercommentPlusDateListTO();
+				 temp.setComment((String) ob[0]);
+				temp.setTimestamp((Date) ob[1]);
+				 
+				 peercommentPlusDateList.add(temp);
+			  }
+			  
+			  skillsList.setPeercomments(peerCommentList);
+			  skillsList.setPeercommentsDate(peerCommentDateList);
+			  skillsList.setSelfCommentTime(selfCommentDate);
+			  skillsList.setPeercommentPlusDateList(peercommentPlusDateList);
 			return skillsList;
 		
   }
@@ -556,7 +704,8 @@ else
 		updateSkillTO.setEmpId(saved.getEmpId());
 		updateSkillTO.setSkillId(saved.getSkillId());
 		updateSkillTO.setComment(saved.getComment());
-		updateSkillTO.setRating(LevelsEnum.getLevelFromName(saved.getRating()));
+		updateSkillTO.setSdlcCategory(SdlcCategory.getCategoryFromName(saved.getSdlcCategory()));
+		updateSkillTO.setRating(CompetencyLevelsEnum.getLevelFromName(saved.getRating()));
 		updateSkillTO.setRatingDoneBy(saved.getRatingDoneBy());
 		updateSkillTO.setRatingDoneByEmpId(saved.getRatingDoneByEmpId());
 		updateSkillTO.setWeekNumber(saved.getWeekNumber());
@@ -575,7 +724,7 @@ else
 		ViewSkillTO viewSkillTO = new ViewSkillTO();
 		viewSkillTO.setEmpId(employeeSkillEntity.getEmpId());
 		viewSkillTO.setSkillId(employeeSkillEntity.getSkillId());
-		viewSkillTO.setRating(LevelsEnum.getLevelFromName(employeeSkillEntity.getRating()));
+		viewSkillTO.setRating(CompetencyLevelsEnum.getLevelFromName(employeeSkillEntity.getRating()));
 		viewSkillTO.setRatingDoneBy(employeeSkillEntity.getRatingDoneBy());
 		viewSkillTO.setWeekNumber("week-"+employeeSkillEntity.getWeekNumber());
 		viewSkillTO.setCreationDate(employeeSkillEntity.getCreationDate());
@@ -584,6 +733,7 @@ else
 		viewSkillTO.setRatingDoneByEmpId(employeeSkillEntity.getRatingDoneByEmpId());
 		viewSkillTO.setDescription(skill.getDescription());
 		viewSkillTO.setCreationDateString(getDateForResponse(employeeSkillEntity.getCreationDate()));
+		viewSkillTO.setSdlcCategory(SdlcCategory.getCategoryFromName(employeeSkillEntity.getSdlcCategory()));
 		///viewSkillTO.setComment(employeeSkillEntity.getComment());
 		
 		return viewSkillTO;

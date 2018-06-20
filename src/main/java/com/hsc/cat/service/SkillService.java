@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +14,9 @@ import com.hsc.cat.TO.SearchSkillTOList;
 import com.hsc.cat.TO.SkillTO;
 import com.hsc.cat.VO.AddSkillVO;
 import com.hsc.cat.entity.Skill;
+import com.hsc.cat.enums.RoleCategoryEnum;
+import com.hsc.cat.enums.SkillCategoryEnum;
+import com.hsc.cat.enums.SkillSubCategoryEnum;
 import com.hsc.cat.repository.SkillRepository;
 
 
@@ -23,6 +25,9 @@ import com.hsc.cat.repository.SkillRepository;
 @Service
 public class SkillService {
 	
+	
+	@Autowired
+	private ProfileService profileService;
 	private static final Logger LOGGER = (Logger) LogManager.getLogger(SkillService.class);
 
 	@Autowired
@@ -47,6 +52,8 @@ public class SkillService {
 		Skill skill = new Skill();
 		skill.setSkillName(svo.getSkillName());
 		skill.setDescription(svo.getDescription());
+		skill.setSkillCategory(svo.getSkillCategory());
+		skill.setSkillSubCategory(svo.getSkillSubCategory());
 		
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		
@@ -89,7 +96,8 @@ public class SkillService {
 		skillTO.setSkillId(skill.getSkillId());
 		skillTO.setCreationDate(skill.getCreationDate());
 		skillTO.setUpdationDate(skill.getUpdationDate());
-		
+		skillTO.setSkillCategory(skill.getSkillCategory());
+		skillTO.setSkillSubCategory(skill.getSkillSubCategory());
 		return skillTO;
 	}
 	
@@ -122,5 +130,85 @@ public class SkillService {
 		}
 		
 		return searchSkillTO;
+	}
+	
+	
+	
+	
+	/*public List<SkillTO> fetchSkillsInACategory(String skillCategory){
+		List<Skill> skillEntityList=skillRepository.findBySkillCategory(skillCategory);
+		
+		List<SkillTO> skillTOList=new ArrayList<>();
+		
+		for(Skill skill:skillEntityList) {
+			SkillTO skillTO=modelConversion(skill);
+			
+			skillTOList.add(skillTO);
+		}
+		
+		return skillTOList;
+	}
+	*/
+	
+	public List<SkillTO> fetchSkillsInACategory(int skillCategoryNumber){
+		
+		String skillCategory=SkillCategoryEnum.getTechnologyNameFromNumber(skillCategoryNumber);
+		List<Skill> skillEntityList=new ArrayList<>();
+		if(skillCategoryNumber==SkillCategoryEnum.FULLSTACK.getValue()) {
+			skillEntityList=skillRepository.getFullstackCategoryskills();
+		}
+		else
+		 {
+			skillEntityList=skillRepository.findBySkillCategory(skillCategory);
+		 }
+		
+		List<SkillTO> skillTOList=new ArrayList<>();
+		
+		for(Skill skill:skillEntityList) {
+			SkillTO skillTO=modelConversion(skill);
+			
+			skillTOList.add(skillTO);
+		}
+		
+		return skillTOList;
+	}
+	
+	
+public List<String> fetchSkillsNotInACategory(int role){
+		
+		String skillCategory=profileService.findCategoryFromRole(RoleCategoryEnum.getProjectRoleNameFromNumber(role));
+		List<String> skillEntityList= new ArrayList<>();
+		if(role==RoleCategoryEnum.FULLSTACK_DEVELOPER.getValue()) {
+			skillEntityList=skillRepository.getSkillsNotInACategoryForFullstack();
+		}
+		else {
+		 skillEntityList=skillRepository.getSkillsNotInACategory(skillCategory);
+		}
+	
+		return skillEntityList;
+}
+	
+	public List<SkillTO> fetchSkillsInACategorySubcategory(int skillCategoryNumber,int skillSubCategoryNumber){
+		String skillCategory=SkillCategoryEnum.getTechnologyNameFromNumber(skillCategoryNumber);
+		String skillSubCategory=SkillSubCategoryEnum.getTechnologyNameFromNumber(skillSubCategoryNumber)	;	
+		
+		List<Skill> skillEntityList=new ArrayList<>();
+		
+		if(skillCategoryNumber==SkillCategoryEnum.FULLSTACK.getValue()) {
+		skillEntityList=skillRepository.getFullstackCategorySubcategoryskills(skillSubCategory);
+		}
+		else{
+			skillEntityList=skillRepository.findBySkillCategoryAndSkillSubCategory(skillCategory, skillSubCategory);
+		}
+		
+		List<SkillTO> skillTOList=new ArrayList<>();
+		
+		for(Skill skill:skillEntityList) {
+			SkillTO skillTO=modelConversion(skill);
+			
+			skillTOList.add(skillTO);
+		}
+		
+		return skillTOList;
 	}
 }

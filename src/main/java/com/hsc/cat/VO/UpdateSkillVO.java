@@ -10,6 +10,7 @@ public class UpdateSkillVO {
 	private String ratingDoneBy;
 	private String comment;
 	private String ratingDoneByEmpId;
+	private int sdlcCategory;
 	public int getSkillId() {
 		return skillId;
 	}
@@ -51,6 +52,12 @@ public class UpdateSkillVO {
 	}
 	public void setRatingDoneByEmpId(String ratingDoneByEmpId) {
 		this.ratingDoneByEmpId = ratingDoneByEmpId;
+	}
+	public int getSdlcCategory() {
+		return sdlcCategory;
+	}
+	public void setSdlcCategory(int sdlcCategory) {
+		this.sdlcCategory = sdlcCategory;
 	}
 	
 	

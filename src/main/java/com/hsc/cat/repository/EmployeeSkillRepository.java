@@ -19,7 +19,7 @@ import com.hsc.cat.entity.EmployeeSkillEntity;
 public interface EmployeeSkillRepository extends JpaRepository<EmployeeSkillEntity, Integer>{
 
 	//@Query("select e from EmployeeSkillEntity e where e.empId:=empId AND e.skillId:=skillId AND e.weekNumber:=weekNumber AND e.ratingDoneBy:=ratingDoneBy")
-	EmployeeSkillEntity findByEmpIdAndSkillIdAndWeekNumberAndRatingDoneByAndRatingDoneByEmpId(String empId,int skillId,int weekNumber,String ratingDoneBy,String ratingDoneByEmpId);
+	EmployeeSkillEntity findByEmpIdAndSkillIdAndWeekNumberAndRatingDoneByAndRatingDoneByEmpIdAndSdlcCategory(String empId,int skillId,int weekNumber,String ratingDoneBy,String ratingDoneByEmpId,String sdlcCategory);
 	
 	
 	
@@ -34,8 +34,8 @@ public interface EmployeeSkillRepository extends JpaRepository<EmployeeSkillEnti
 	
 	@Modifying(clearAutomatically = true)
 	@Transactional
-	@Query("UPDATE EmployeeSkillEntity e SET  e.rating=:rating,e.comment=:comment,e.creationDate=:creationDate WHERE e.skillId=:skillId AND e.weekNumber=:weekNumber AND e.ratingDoneBy=:ratingDoneBy  AND e.empId=:empId AND e.ratingDoneByEmpId=:ratingDoneByEmpId") 
-	int updateEmployeeSkill(@Param("skillId") int skillId,@Param("rating")String rating,@Param("comment")String comment,@Param("weekNumber") int weekNumber,@Param("ratingDoneBy") String ratingDoneBy,@Param("creationDate") Date creationDate,@Param("empId")String empId,@Param("ratingDoneByEmpId")String ratingDoneByEmpId);
+	@Query("UPDATE EmployeeSkillEntity e SET  e.rating=:rating,e.comment=:comment,e.creationDate=:creationDate WHERE e.skillId=:skillId AND e.weekNumber=:weekNumber AND e.ratingDoneBy=:ratingDoneBy  AND e.empId=:empId AND e.ratingDoneByEmpId=:ratingDoneByEmpId AND e.sdlcCategory=:sdlcCategory") 
+	int updateEmployeeSkill(@Param("skillId") int skillId,@Param("rating")String rating,@Param("comment")String comment,@Param("weekNumber") int weekNumber,@Param("ratingDoneBy") String ratingDoneBy,@Param("creationDate") Date creationDate,@Param("empId")String empId,@Param("ratingDoneByEmpId")String ratingDoneByEmpId,@Param("sdlcCategory") String sdlcCategory);
 	
 	@Query("select e from EmployeeSkillEntity e WHERE e.empId=:empId")
 	List<EmployeeSkillEntity> findByEmpIdSkill(@Param("empId")String empId);
@@ -78,4 +78,10 @@ public interface EmployeeSkillRepository extends JpaRepository<EmployeeSkillEnti
 	@Query("select e from EmployeeSkillEntity e WHERE e.empId=:empId order by e.creationDate desc ")
 	List<EmployeeSkillEntity> getViewHistory(@Param("empId")String empId);
 	
+	
+//	@Query("select e from EmployeeSkillEntity e WHERE e.rating!='Cannot Assess' and e.empId=:empId and weekNumber BETWEEN :start and :end")
+//	List<EmployeeSkillEntity> getAllRatedSkillsCustomNew(@Param("empId")String empId, @Param("start")int start, @Param("end")int end,@Param("sdlcCategory") int sdlcCategory);
+	
+	@Query("select e.creationDate from EmployeeSkillEntity e where e.ratingDoneBy='Self' and e.empId=:empId  order by e.creationDate desc")
+	List<Date> getLatestSelfCommentDate(@Param("empId")String empId);
 }

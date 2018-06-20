@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hsc.cat.TO.MapTO;
+import com.hsc.cat.TO.SelfRatedSkillsTO;
 import com.hsc.cat.TO.SkillTO;
 import com.hsc.cat.TO.UpdateSkillResponse;
 import com.hsc.cat.TO.UpdateSkillTO;
@@ -141,11 +142,11 @@ public class EmployeeSkillController {
 	
 	
 	@ResponseBody
-	@RequestMapping(value="/getAllSelfRatedSkills/{empId}",method=RequestMethod.GET,produces = "application/json",consumes="application/json")
+	@RequestMapping(value="/cat/getAllSelfRatedSkills/{empId}/{sdlcCategoryNum}",method=RequestMethod.GET,produces = "application/json",consumes="application/json")
 	@CrossOrigin
-	public JSONOutputModel getAllSelfRatedSkills(@PathVariable("empId") String empId) {
+	public JSONOutputModel getAllSelfRatedSkills(@PathVariable("empId") String empId,@PathVariable("sdlcCategoryNum")int sdlcCategoryNum) {
 		JSONOutputModel output = new JSONOutputModel();
-		List<SkillTO> list=updateSkillService.getAllSelfRatedSkills(empId);
+		List<SelfRatedSkillsTO> list=updateSkillService.getAllSelfRatedSkills(empId,sdlcCategoryNum);
 		
 		System.out.println(list.size());
 		if(list!=null && !list.isEmpty()) {
@@ -156,7 +157,7 @@ public class EmployeeSkillController {
 		
 		else {
 			output.setData(list);
-			output.setMessage("No rated skill details fetched");
+			output.setMessage("No rated skill details found for employee:"+empId);
 			output.setStatus(JSONOutputEnum.SUCCESS.getValue());
 		}
 		

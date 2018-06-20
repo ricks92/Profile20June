@@ -1,14 +1,38 @@
 package com.hsc.cat.TO;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ViewSkillListTO {
 
 	private List<ViewSkillTO> listOfEmployeeSkills;
 	private Set<Integer> listOfSkillId;
 	private String selfComment;
-	private String peerComment;
+	
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+	private Date selfCommentTime;
+	//private String peerComment;
+	@JsonIgnore
+	private List<String> peercomments;
+	
+	@JsonIgnore
+	private List<Date> peercommentsDate;
+
+	
+	private List<PeercommentPlusDateListTO> peercommentPlusDateList;
+	
+
+	public List<String> getPeercomments() {
+		return peercomments;
+	}
+
+	public void setPeercomments(List<String> peercomments) {
+		this.peercomments = peercomments;
+	}
 
 	public Set<Integer> getListOfSkillId() {
 		return listOfSkillId;
@@ -26,6 +50,14 @@ public class ViewSkillListTO {
 		this.listOfEmployeeSkills = listOfEmployeeSkills;
 	}
 
+	public List<Date> getPeercommentsDate() {
+		return peercommentsDate;
+	}
+
+	public void setPeercommentsDate(List<Date> peercommentsDate) {
+		this.peercommentsDate = peercommentsDate;
+	}
+
 	public String getSelfComment() {
 		return selfComment;
 	}
@@ -34,13 +66,31 @@ public class ViewSkillListTO {
 		this.selfComment = selfComment;
 	}
 
-	public String getPeerComment() {
-		return peerComment;
+	public Date getSelfCommentTime() {
+		return selfCommentTime;
 	}
 
-	public void setPeerComment(String peerComment) {
-		this.peerComment = peerComment;
+	public void setSelfCommentTime(Date selfCommentTime) {
+		this.selfCommentTime = selfCommentTime;
 	}
+
+	public List<PeercommentPlusDateListTO> getPeercommentPlusDateList() {
+		return peercommentPlusDateList;
+	}
+
+	public void setPeercommentPlusDateList(List<PeercommentPlusDateListTO> peercommentPlusDateList) {
+		this.peercommentPlusDateList = peercommentPlusDateList;
+	}
+
+	
+	
+//	public String getPeerComment() {
+//		return peerComment;
+//	}
+//
+//	public void setPeerComment(String peerComment) {
+//		this.peerComment = peerComment;
+//	}
 	
 	
 }
