@@ -1,16 +1,17 @@
 package com.hsc.cat.service;
 
-import java.util.Iterator;
 import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.hsc.cat.TO.ResponseTO;
 import com.hsc.cat.VO.ChangePasswordVO;
 import com.hsc.cat.VO.ForgetPasswordVO;
-import com.hsc.cat.VO.ValidateSecurityQuestionVO;
 import com.hsc.cat.entity.EmployeeDetails;
 import com.hsc.cat.entity.UserDetails;
 import com.hsc.cat.repository.EmployeeDetailRepository;
@@ -24,6 +25,9 @@ public class UserDetailService {
 	
 	@Autowired
 	private EmployeeDetailRepository employeeDetailRepository;
+	
+	@PersistenceContext
+	private EntityManager entityManager;
 //	
 //	public UserTO registerUser(UserDetails userDetails){
 //		
@@ -42,7 +46,7 @@ public class UserDetailService {
 //		return userTO;
 //	}
 	
-	public boolean validateSecurityQuestion(ValidateSecurityQuestionVO validateSecurityQuestionVO) {
+	/*public boolean validateSecurityQuestion(ValidateSecurityQuestionVO validateSecurityQuestionVO) {
 		UserDetails user = userRepository.findOne(validateSecurityQuestionVO.getEmpId());
 		EmployeeDetails emp=user.getEmployeeDetails();
 		if(emp!=null && (emp.getSecurityQues1().equals(validateSecurityQuestionVO.getSecurityQuestion()) && emp.getSecurityAns1().equals(validateSecurityQuestionVO.getAnswer() ) ) ||  (emp.getSecurityQues2().equals(validateSecurityQuestionVO.getSecurityQuestion() )&& emp.getSecurityAns2().equals(validateSecurityQuestionVO.getAnswer()  )  ) ) 
@@ -53,14 +57,14 @@ public class UserDetailService {
 		
 		return false;
 	}
-	
+	*/
 	
 	public ResponseTO checkValidUser(String userName, String password, String role) {
 		boolean userAvailable = Boolean.FALSE;
 		boolean userPassword = Boolean.FALSE;
 
 		ResponseTO responseTO = new ResponseTO();
-		responseTO.setResponseCode("0");
+		/*responseTO.setResponseCode("0");
 		responseTO.setResponseMessage("FAILURE");
 		List<UserDetails> userDetailsList = userRepository.findAll();
 		Iterator itr = userDetailsList.iterator();
@@ -101,6 +105,41 @@ public class UserDetailService {
 			responseTO.setResponseMessage("Password Incorrect");
 			
 
+		}*/
+		
+		UserDetails user=userRepository.findByUsername(userName);
+		if(user==null) {
+			responseTO.setResponseCode("0");
+			responseTO.setResponseMessage("FAILURE");
+			return responseTO;
+		}
+		if(!(user.getPassword().equals(password))) {
+			responseTO.setResponseCode("2");
+			responseTO.setResponseMessage("Password Incorrect");
+			return responseTO;
+		}
+		
+		if(!(user.getRole().equalsIgnoreCase(role))) {
+			responseTO.setResponseCode("3");
+			responseTO.setResponseMessage("Incorrect Role");
+			return responseTO;
+		}
+		
+		if(user.getUsername().equalsIgnoreCase(userName) && user.getPassword().equals(password) && user.getRole().equalsIgnoreCase(role)) {
+			responseTO.setResponseCode("1");
+			responseTO.setResponseMessage("SUCCESS");
+			//EmployeeDetails emp=employeeDetailRepository.findOne(user.getUsername());
+			Query query=entityManager.createQuery("select e from EmployeeDetails e where e.empid=:empid");
+			
+			query.setParameter("empid", userName);
+			
+			List<EmployeeDetails> empList=(List<EmployeeDetails>)query.getResultList();
+			EmployeeDetails emp=empList.get(0);
+			responseTO.setFirstName(emp.getFirstName());
+			responseTO.setLastName(emp.getLastName());
+			responseTO.setRole(user.getRole());
+			responseTO.setUserName(user.getUsername());
+			responseTO.setEmailId(emp.getEmail());
 		}
 		return responseTO;
 	}

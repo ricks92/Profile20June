@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 //New added class
 @Entity
@@ -18,8 +20,17 @@ public class ProfileEntity {
 	@Column(name="id")
 	private int id;
 	
-	@Column(name="emp_id")
+	@Column(name="emp_id_profile")
 	private String empId;
+	
+	@Column(name="firstname")
+	private String firstname;
+	
+	@Column(name="lastname")
+	private String lastname;
+	
+	@Column(name="email")
+	private String email;
 	
 	@Column(name="project_role")
 	private String projectRole;
@@ -30,6 +41,9 @@ public class ProfileEntity {
 	@Column(name = "creation_date")
 	private Date creationDate;
 	
+	@OneToOne
+	@JoinColumn(name="emp_id_profile", insertable = false, updatable = false)
+	private EmployeeDetails employeeDetails;
 	public ProfileEntity() {
 		
 	}
@@ -70,12 +84,33 @@ public class ProfileEntity {
 		this.creationDate = creationDate;
 	}
 
-	@Override
-	public String toString() {
-		return "ProfileEntity [id=" + id + ", empId=" + empId + ", projectRole=" + projectRole + ", description="
-				+ description + ", creationDate=" + creationDate + "]";
+	public String getFirstname() {
+		return firstname;
 	}
 
+	public void setFirstname(String firstname) {
+		this.firstname = firstname;
+	}
+
+	public String getLastname() {
+		return lastname;
+	}
+
+	public void setLastname(String lastname) {
+		this.lastname = lastname;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	
+
+	
 	
 	
 	

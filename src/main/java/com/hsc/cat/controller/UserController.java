@@ -50,7 +50,7 @@ public class UserController {
 	}*/
 	
 	
-	@ResponseBody
+/*	@ResponseBody
 	@RequestMapping(value=RESTURLConstants.VALIDATE_SECURITY_QUESTIONS,method=RequestMethod.POST,produces = "application/json",consumes="application/json")
 	@CrossOrigin
 	public JSONOutputModel validateSecurityQuestion(@RequestBody ValidateSecurityQuestionVO validateSecurityQuestionVO) {
@@ -70,7 +70,7 @@ public class UserController {
 			output.setMessage("Please enter correct answer!");
 		}
 		return output;
-	}
+	}*/
 	
 	
 	

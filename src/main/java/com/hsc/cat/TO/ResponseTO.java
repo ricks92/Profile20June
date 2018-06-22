@@ -1,5 +1,7 @@
 package com.hsc.cat.TO;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class ResponseTO {
 
 	private String responseCode;
@@ -8,6 +10,8 @@ public class ResponseTO {
 	private String firstName;
 	private String lastName;
 	private String userName;
+	
+	@JsonIgnore
 	private String department;
 	private String emailId;
 	

@@ -84,6 +84,19 @@ CREATE  TABLE `cat2`.`employee_skills` (
   references `employee_details`(`emp_id`)
   );
   
+  ALTER TABLE `cat2`.`profile_details` ADD COLUMN `firstname` VARCHAR(255) NULL  AFTER `emp_id` , ADD COLUMN `lastname` VARCHAR(255) NULL  AFTER `firstname` , ADD COLUMN `email` VARCHAR(255) NULL  AFTER `lastname` ;
+  
+  ALTER TABLE `cat2`.`profile_details` DROP FOREIGN KEY `emp_profile` ;
+
+ALTER TABLE `cat2`.`profile_details` CHANGE COLUMN `emp_id` `emp_id_profile` VARCHAR(255) NOT NULL  , 
+
+  ADD CONSTRAINT `emp_profile`
+
+  FOREIGN KEY (`emp_id_profile` )
+
+  REFERENCES `cat2`.`employee_details` (`emp_id` );
+
+
   
 CREATE  TABLE `cat2`.`skill_profile` ( 
     `id` INT  NOT NULL AUTO_INCREMENT, 
@@ -101,3 +114,13 @@ CREATE  TABLE `cat2`.`skill_profile` (
 ALTER TABLE cat2.skill_profile
 ADD CONSTRAINT skills_profile_sk
 FOREIGN KEY (skill_id) REFERENCES skill_details(skill_id);
+
+
+
+CREATE  TABLE `cat2`.`security_questions` (
+
+  `id` INT NOT NULL ,
+
+  `question` VARCHAR(255) NOT NULL ,
+
+  PRIMARY KEY (`id`) );

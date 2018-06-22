@@ -1,20 +1,37 @@
+/**
+**********************************************************************************************************
+--  FILENAME		: FetchMapController3.java
+--  DESCRIPTION		: REST API for self assessment, peer assessment
+--
+--  Copyright		: Copyright (c) 2018.
+--  Company			: HSC
+--
+--  Revision History
+-- --------------------------------------------------------------------------------------------------------
+-- |VERSION |      Date                              |      Author              |      Reason for Changes                                         |
+-- --------------------------------------------------------------------------------------------------------
+-- |  0.1   |   April 2, 2018                         |     Richa Anand      |       Initial draft                                                        |
+-- --------------------------------------------------------------------------------------------------------
+--
+************************************************************************************************************
+**/
+
 package com.hsc.cat.controller;
 
 import java.util.List;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hsc.cat.GetAllPeerReviewedSkillsVO;
 import com.hsc.cat.TO.MapTO;
 import com.hsc.cat.TO.SelfRatedSkillsTO;
 import com.hsc.cat.TO.SkillTO;
@@ -23,10 +40,13 @@ import com.hsc.cat.TO.UpdateSkillTO;
 import com.hsc.cat.TO.ViewSkillListTO;
 import com.hsc.cat.VO.MapVO;
 import com.hsc.cat.VO.UpdateSkillsListVO;
+import com.hsc.cat.enums.SdlcCategory;
 import com.hsc.cat.service.EmployeeSkillService;
 import com.hsc.cat.utilities.JSONOutputEnum;
 import com.hsc.cat.utilities.JSONOutputModel;
 import com.hsc.cat.utilities.RESTURLConstants;
+
+import io.swagger.annotations.ApiOperation;
 
 
 @RestController
@@ -37,6 +57,7 @@ public class EmployeeSkillController {
 	@Autowired
 	private EmployeeSkillService updateSkillService;
 	
+	@ApiOperation(value="Add rating for self or peer")
 	@ResponseBody
 	@RequestMapping(value=RESTURLConstants.UPDATE_SKILL,method=RequestMethod.POST,produces = "application/json",consumes="application/json")
 	@CrossOrigin
@@ -61,6 +82,7 @@ public class EmployeeSkillController {
 			output.setData(response.getUpdateSkillTOList());
 			output.setStatus(JSONOutputEnum.SUCCESS.getValue());
 			output.setMessage("Skills updated successfully");
+			LOGGER.debug("Skills updated successfully");
 		}
 		
 		else {
@@ -77,7 +99,7 @@ public class EmployeeSkillController {
 		
 	}
 	
-	
+	@ApiOperation(value="View ratings of a user")
 	@ResponseBody
 	@RequestMapping(value=RESTURLConstants.VIEW_SKILL,method=RequestMethod.GET,produces = "application/json",consumes="application/json")
 	@CrossOrigin
@@ -103,11 +125,13 @@ public class EmployeeSkillController {
 			output.setData(viewSkillListTO);
 			output.setStatus(JSONOutputEnum.SUCCESS.getValue());
 			output.setMessage("Employee skills fetched successfully");
+			LOGGER.debug("Employee skills fetched successfully");
 		}
 		else {
 			output.setData(viewSkillListTO);
 			output.setStatus(JSONOutputEnum.FAILURE.getValue());
 			output.setMessage("Employee skills entry not there");
+			LOGGER.debug("Employee skills entry not there");
 		}
 		
 		
@@ -140,7 +164,7 @@ public class EmployeeSkillController {
 		
 	}
 	
-	
+	@ApiOperation(value="Get all self assessed skills")
 	@ResponseBody
 	@RequestMapping(value="/cat/getAllSelfRatedSkills/{empId}/{sdlcCategoryNum}",method=RequestMethod.GET,produces = "application/json",consumes="application/json")
 	@CrossOrigin
@@ -152,13 +176,88 @@ public class EmployeeSkillController {
 		if(list!=null && !list.isEmpty()) {
 			output.setData(list);
 			output.setMessage("Rated skill details fetched successfully");
+			LOGGER.debug("Rated skill details fetched successfully");
 			output.setStatus(JSONOutputEnum.SUCCESS.getValue());
 		}
 		
 		else {
 			output.setData(list);
 			output.setMessage("No rated skill details found for employee:"+empId);
+			LOGGER.debug("No rated skill details found for employee:"+empId);
+			output.setStatus(JSONOutputEnum.FAILURE.getValue());
+		}
+		
+		return output;
+	}
+	
+	@ApiOperation(value="Get all skills that have not been self assessed")
+	@ResponseBody
+	@RequestMapping(value="/cat/getAllNotSelfRatedSkills/{empId}/{sdlcCategoryNum}",method=RequestMethod.GET,produces = "application/json",consumes="application/json")
+	@CrossOrigin
+	public JSONOutputModel getAllNotSelfRatedSkills(@PathVariable("empId") String empId,@PathVariable("sdlcCategoryNum")int sdlcCategoryNum) {
+		JSONOutputModel output = new JSONOutputModel();
+		List<SkillTO> list=updateSkillService.getAllNotSelfRatedSkills(empId,sdlcCategoryNum);
+		
+		System.out.println("Total unrated skills found:"+list.size());
+		if(list!=null && !list.isEmpty()) {
+			output.setData(list);
+			output.setMessage("Unrated skill details fetched successfully");
+			LOGGER.debug("Unrated skill details fetched successfully");
 			output.setStatus(JSONOutputEnum.SUCCESS.getValue());
+		}
+		
+		else {
+			output.setData(list);
+			output.setMessage("No Unrated skill details found for employee:"+empId);
+			LOGGER.debug("No Unrated skill details found for employee:"+empId);
+			output.setStatus(JSONOutputEnum.FAILURE.getValue());
+		}
+		
+		return output;
+	}
+	
+	@ApiOperation(value="Get all peer reviewed skills")
+	@ResponseBody
+	@RequestMapping(value="cat/getAllPeerReviewedSkills",method=RequestMethod.POST,produces = "application/json",consumes="application/json")
+	@CrossOrigin
+	public JSONOutputModel getAllPeerReviewedSkills(@RequestBody GetAllPeerReviewedSkillsVO getAllPeerReviewedSkillsVO){
+		JSONOutputModel output = new JSONOutputModel();
+		if(getAllPeerReviewedSkillsVO==null) {
+			output.setMessage("Empty request body");
+			LOGGER.debug("Empty request body");
+			output.setStatus(JSONOutputEnum.FAILURE.getValue());
+			return output;
+		}
+	if(getAllPeerReviewedSkillsVO.getEmpId()==null ||getAllPeerReviewedSkillsVO.getEmpId().equals("")||getAllPeerReviewedSkillsVO.getPeerEmpId()==null||getAllPeerReviewedSkillsVO.getPeerEmpId().equals("")) {
+			output.setMessage("Invalid parameters--empid");
+			LOGGER.debug("Invalid parameters--empid");
+			output.setStatus(JSONOutputEnum.FAILURE.getValue());
+		return output;
+		}
+		
+	if(SdlcCategory.getSdlcCategoryName(getAllPeerReviewedSkillsVO.getSdlcCategoryNum()).equalsIgnoreCase("Invalid"))
+		{
+			output.setMessage("Invalid parameters for SDLC category");
+			LOGGER.debug("Invalid parameters for SDLC category");
+			output.setStatus(JSONOutputEnum.FAILURE.getValue());
+		return output;
+		}
+		
+		
+		
+		List<SelfRatedSkillsTO> list=updateSkillService.getAllPeerReviewedSkills(getAllPeerReviewedSkillsVO);
+		if(list!=null && !list.isEmpty()) {
+			output.setData(list);
+			output.setMessage("Rated skill details fetched successfully");
+			LOGGER.debug("Rated skill details fetched successfully");
+			output.setStatus(JSONOutputEnum.SUCCESS.getValue());
+		}
+		
+		else {
+			output.setData(list);
+			output.setMessage("No rated skill details found for employee:"+getAllPeerReviewedSkillsVO.getEmpId());
+			LOGGER.debug("No rated skill details found for employee:"+getAllPeerReviewedSkillsVO.getEmpId());
+			output.setStatus(JSONOutputEnum.FAILURE.getValue());
 		}
 		
 		return output;

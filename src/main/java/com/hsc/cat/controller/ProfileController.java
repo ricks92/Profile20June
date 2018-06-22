@@ -24,7 +24,11 @@ import com.hsc.cat.utilities.StatusCode;
 @RestController
 public class ProfileController {
 
+	
 	private static final Logger LOGGER = (Logger) LogManager.getLogger(EmployeeSkillService.class);
+	@Autowired
+	private ProfileService profileService;
+	/*private static final Logger LOGGER = (Logger) LogManager.getLogger(EmployeeSkillService.class);
 	@Autowired
 	private ProfileService profileService;
 	
@@ -80,5 +84,28 @@ public class ProfileController {
 			output.setStatus(JSONOutputEnum.FAILURE.getValue());
 		}
 		return output;
+	}*/
+	
+	
+	
+	@RequestMapping(value=RESTURLConstants.VIEW_PROFILE,method=RequestMethod.GET)
+	@CrossOrigin
+	@ResponseBody
+	public JSONOutputModel viewProfile(@PathVariable("empId")String empId) {
+		JSONOutputModel output= new JSONOutputModel();
+		ViewProfileTO viewProfileTO=profileService.viewProfile2(empId);
+		
+		if(viewProfileTO!=null) {
+			output.setData(viewProfileTO);
+			output.setStatus(JSONOutputEnum.SUCCESS.getValue());
+			output.setMessage("Profile fetched successfully");
+		}
+		else {
+			output.setData(viewProfileTO);
+			output.setStatus(JSONOutputEnum.FAILURE.getValue());
+			output.setMessage("Profile entry not there");
+		}
+		return output;
+		
 	}
 }

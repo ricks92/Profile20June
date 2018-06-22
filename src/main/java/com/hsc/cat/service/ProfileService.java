@@ -223,6 +223,22 @@ String category=null;
 	
 	
 	
+	
+	
+	public ViewProfileTO viewProfile2(String empid) {
+		ProfileEntity profileEntity=profileRepository.findByEmpId(empid);
+		
+		ViewProfileTO viewProfileTO =new ViewProfileTO();
+		if(profileEntity==null) return null;
+		viewProfileTO.setFirstName(profileEntity.getFirstname());
+		viewProfileTO.setLastName(profileEntity.getLastname());
+		viewProfileTO.setEmailId(profileEntity.getEmail());
+		viewProfileTO.setUserName(profileEntity.getEmpId());
+		viewProfileTO.setProjectRole(profileEntity.getProjectRole());
+		
+		return viewProfileTO;
+	}
+	
 //	public List<String> populateDropdownOtherDomain(PopulateDropdownOtherDomainVO incomingVO){
 //		String projectRole=RoleCategoryEnum.getProjectRoleNameFromNumber(incomingVO.getProjectRole());
 //		List<String> domainSelectedSkills=incomingVO.getDomainSelectedSkills();

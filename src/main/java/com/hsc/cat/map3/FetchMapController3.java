@@ -1,3 +1,20 @@
+/**
+**********************************************************************************************************
+--  FILENAME		: FetchMapController3.java
+--  DESCRIPTION		: REST API for displaying dashboard of employees
+--
+--  Copyright		: Copyright (c) 2018.
+--  Company			: HSC
+--
+--  Revision History
+-- --------------------------------------------------------------------------------------------------------
+-- |VERSION |      Date                              |      Author              |      Reason for Changes                                         |
+-- --------------------------------------------------------------------------------------------------------
+-- |  0.1   |   June 20, 2018                         |     Richa Anand      |       Initial draft                                                        |
+-- --------------------------------------------------------------------------------------------------------
+--
+************************************************************************************************************
+**/
 package com.hsc.cat.map3;
 
 import org.apache.log4j.LogManager;
@@ -16,6 +33,8 @@ import com.hsc.cat.controller.SkillController;
 import com.hsc.cat.utilities.JSONOutputEnum;
 import com.hsc.cat.utilities.JSONOutputModel;
 
+import io.swagger.annotations.ApiOperation;
+
 
 
 
@@ -28,6 +47,7 @@ public class FetchMapController3 {
 	private FetchMapService3 fetchMapService;
 	
 	
+	@ApiOperation("Display assessment chart in employee dashboard")
 	@ResponseBody
 	@RequestMapping(value="/cat/fetchMapNew3",method=RequestMethod.POST,produces = "application/json",consumes="application/json")
 	@CrossOrigin
@@ -39,6 +59,7 @@ public class FetchMapController3 {
 		
 		if(newFetchMapVO.getEmpId()==null ||newFetchMapVO.getEmpId().equals("") || newFetchMapVO.getQuarter()<1 || newFetchMapVO.getQuarter()>4) {
 			output.setMessage("Invalid parameters");
+			LOGGER.debug("Invalid parameters");
 			output.setStatus(JSONOutputEnum.FAILURE.getValue());
 		}
 		FetchMapTO3 fetchMapTO=fetchMapService.fetchMap(newFetchMapVO);
@@ -48,10 +69,12 @@ public class FetchMapController3 {
 		if(fetchMapTO!=null && fetchMapTO.getSkillMapResponse()!=null &&( !fetchMapTO.getListOfselfReviews().isEmpty() ||!fetchMapTO.getListOfpeerReviews().isEmpty())) {
 			
 			output.setMessage("Map fetched successfully");
+			LOGGER.debug("Map fetched successfully");
 			output.setStatus(JSONOutputEnum.SUCCESS.getValue());
 		}
 		else {
 			output.setMessage("No data found");
+			LOGGER.debug("No data found");
 			output.setStatus(JSONOutputEnum.FAILURE.getValue());
 		}
 		return output;

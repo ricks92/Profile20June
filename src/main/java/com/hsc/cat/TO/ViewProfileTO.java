@@ -12,6 +12,7 @@ public class ViewProfileTO {
 	private String department;
 	private String emailId;
 	private String projectRole;
+	@JsonIgnore
 	private List<String> selectedSkills;
 	
 	public String getUserName() {

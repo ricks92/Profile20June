@@ -5,11 +5,14 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class EmployeeTO {
 
 	private String empid;
 	private String firstName;
 	private String lastName;
+	@JsonIgnore
 	private String department;
 	private Date creationDate;
 	private Date updationDate;
@@ -20,6 +23,7 @@ public class EmployeeTO {
 	private String managerId;
 	private String email;
 	private String approvalStatus;
+	@JsonIgnore
 	private String issue;
 
 

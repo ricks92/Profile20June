@@ -25,12 +25,12 @@ public class UserDetails {
 	@Column(name="role")
     private String role;
 	
-	@OneToOne
+/*	@OneToOne
 	(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH,
 			CascadeType.REFRESH,CascadeType.REMOVE },mappedBy="userDetails")
 	@JsonIgnore
 	
-	private EmployeeDetails employeeDetails;
+	private EmployeeDetails employeeDetails;*/
 	public UserDetails() {
 		
 	}
@@ -74,14 +74,14 @@ public class UserDetails {
 	}
 
 
-	public EmployeeDetails getEmployeeDetails() {
+	/*public EmployeeDetails getEmployeeDetails() {
 		return employeeDetails;
 	}
 
 
 	public void setEmployeeDetails(EmployeeDetails employeeDetails) {
 		this.employeeDetails = employeeDetails;
-	}
+	}*/
 	
 	
 	

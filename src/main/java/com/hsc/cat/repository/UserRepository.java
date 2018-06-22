@@ -1,5 +1,7 @@
 package com.hsc.cat.repository;
 
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,5 +19,7 @@ public interface UserRepository extends JpaRepository<UserDetails, String>{
 	@Transactional
 	@Query("update UserDetails ud set ud.password=:password where ud.username=:username")
 	int updatePasswordInDB(@Param("username") String username ,@Param("password") String password);
+	
+	UserDetails findByUsername(String username);
 	
 }

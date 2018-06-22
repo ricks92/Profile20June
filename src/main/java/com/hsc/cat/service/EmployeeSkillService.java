@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -18,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.hsc.cat.GetAllPeerReviewedSkillsVO;
 import com.hsc.cat.TO.MapTO;
 import com.hsc.cat.TO.PeercommentPlusDateListTO;
 import com.hsc.cat.TO.SelfRatedSkillsTO;
@@ -590,6 +590,84 @@ else
 	   }
    
    
+   
+   public List<SkillTO> getAllNotSelfRatedSkills(String empId,int sdlcCategoryNum){
+		 LOGGER.debug("Request came to view all not self rated skills of employee:"+empId+ " for SDLC phase:"+SdlcCategory.getSdlcCategoryName(sdlcCategoryNum));
+		   List<SkillTO> skillTOList=new ArrayList<>();
+		   
+		   List<Skill> allSkills=skillRepository.findAll();
+		   
+		   String queryString="select a.skillId from EmployeeSkillEntity a WHERE a.empId=:empId and a.sdlcCategory=:sdlcCategory and a.ratingDoneBy='Self'";
+		   Query query=entityManager.createQuery(queryString);
+		   query.setParameter("empId", empId);
+		   query.setParameter("sdlcCategory", SdlcCategory.getSdlcCategoryName(sdlcCategoryNum));
+		   List<Integer> skillIdList=query.getResultList();
+		   
+		   
+		   HashMap<Integer,Object> map=new HashMap<>(); //key=skillid value=dummy object
+		   for(int i=0;i<skillIdList.size();i++) {
+			   map.put(skillIdList.get(i), null);
+		   }
+		   
+		   System.out.println("\n\n***"+map);
+		   
+		   for(int i=0;i<allSkills.size();i++) {
+			   Skill skill=allSkills.get(i);
+			   if(!map.containsKey(skill.getSkillId())) {
+				   SkillTO skillTO=skillService.modelConversion(skill);
+				   skillTOList.add(skillTO);
+			   }
+		   }
+		   return skillTOList;
+	   }
+   
+   
+   
+   
+   
+   
+
+	public List<SelfRatedSkillsTO> getAllPeerReviewedSkills(GetAllPeerReviewedSkillsVO getAllPeerReviewedSkillsVO){
+		List<SelfRatedSkillsTO> skillTOList=new ArrayList<>();
+		
+		String queryString="select a.skillId,a.rating from EmployeeSkillEntity a where a.ratingDoneBy='Peer' and a.empId=:empId and a.ratingDoneByEmpId=:peerId and a.sdlcCategory=:sdlcCategory order by a.weekNumber desc";
+		
+		Query query=entityManager.createQuery(queryString);
+		   query.setParameter("empId", getAllPeerReviewedSkillsVO.getEmpId());
+		   query.setParameter("sdlcCategory", SdlcCategory.getSdlcCategoryName(getAllPeerReviewedSkillsVO.getSdlcCategoryNum()));
+		   query.setParameter("peerId", getAllPeerReviewedSkillsVO.getPeerEmpId());
+		   List<Object[]> objectsList=query.getResultList();
+		   HashMap<Integer,Integer> map=new HashMap<>(); //Key=skillId and value=rating
+		   
+		   /*
+		    * If rating already exists don't overwrite.
+		    * Get latest ratings per skill
+		    */
+		   for(int i=0;i<objectsList.size();i++)
+		   {
+			   Object[] ob=objectsList.get(i);
+			   int skillId=(int) ob[0];
+			   int rating=CompetencyLevelsEnum.getLevelFromName((String) ob[1]);
+			   if(map.containsKey(skillId)) {
+				   continue;
+			   }
+			   else {
+				   map.put(skillId, rating);
+			   }
+			   Skill skill=skillRepository.findBySkillId(skillId);
+			   SelfRatedSkillsTO selfRatedSkillsTO= new SelfRatedSkillsTO();
+			   selfRatedSkillsTO.setEmpid(getAllPeerReviewedSkillsVO.getEmpId());
+			   selfRatedSkillsTO.setSkillId(skillId);
+			   selfRatedSkillsTO.setSkillName(skill.getSkillName());
+			   selfRatedSkillsTO.setDescription(skill.getDescription());
+			   selfRatedSkillsTO.setRating(rating);
+			   selfRatedSkillsTO.setSdlcCategory(getAllPeerReviewedSkillsVO.getSdlcCategoryNum());
+			   skillTOList.add(selfRatedSkillsTO);
+		   }
+		return skillTOList;
+	}
+   
+   
   public ViewSkillListTO getViewHistory(String empid) {
 	  ViewSkillListTO skillsList= new ViewSkillListTO();
 		List<ViewSkillTO> viewSkillTOList=new ArrayList<>();
@@ -717,7 +795,6 @@ else
 		
 		return updateSkillTOList;
 	}
-	
 	
 	
 	public ViewSkillTO modelConversion(EmployeeSkillEntity employeeSkillEntity) {

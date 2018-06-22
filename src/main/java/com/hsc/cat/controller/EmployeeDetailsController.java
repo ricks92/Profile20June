@@ -1,10 +1,29 @@
+/**
+**********************************************************************************************************
+--  FILENAME		: EmployeeDetailsController.java
+--  DESCRIPTION		: REST API for save employee, get employee etc.
+--
+--  Copyright		: Copyright (c) 2018.
+--  Company			: HSC
+--
+--  Revision History
+-- --------------------------------------------------------------------------------------------------------
+-- |VERSION |      Date                              |      Author              |      Reason for Changes                                         |
+-- --------------------------------------------------------------------------------------------------------
+-- |  0.1   |   April 25, 2018                         |     Richa Anand      |       Initial draft                                                        |
+-- --------------------------------------------------------------------------------------------------------
+--
+************************************************************************************************************
+**/
+
+
+
 package com.hsc.cat.controller;
 
-import java.awt.PageAttributes.MediaType;
 import java.util.List;
 
-import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,27 +32,22 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hsc.cat.TO.EmployeeTO;
 import com.hsc.cat.TO.GetManagerDetailsResponse;
+import com.hsc.cat.TO.ManagerDetails;
+import com.hsc.cat.TO.ResponseTO;
+import com.hsc.cat.TO.ViewTeamTO;
 import com.hsc.cat.VO.EmployeeDetailsVO;
-import com.hsc.cat.VO.VerifyManagerVO;
-import com.hsc.cat.entity.EmployeeDetails;
 import com.hsc.cat.service.EmployeeDetailService;
 import com.hsc.cat.utilities.JSONOutputEnum;
 import com.hsc.cat.utilities.JSONOutputModel;
 import com.hsc.cat.utilities.RESTURLConstants;
 import com.hsc.cat.utilities.StatusCode;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
-import com.hsc.cat.TO.ManagerDetails;
-import com.hsc.cat.TO.ResponseTO;
-import com.hsc.cat.TO.ViewTeamTO;
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 public class EmployeeDetailsController {
@@ -44,6 +58,7 @@ public class EmployeeDetailsController {
 	private EmployeeDetailService employeeDetailService;
 	
 	//Persist an employee's details
+	@ApiOperation(value="Register a user in the application")
 	@ResponseBody
 	@RequestMapping(value=RESTURLConstants.REGISTER_USER,method=RequestMethod.POST,produces = "application/json",consumes="application/json")
 	@CrossOrigin
@@ -67,6 +82,7 @@ public class EmployeeDetailsController {
 			output.setData(employeeTO);
 			output.setStatus(HttpStatus.CREATED.value());
 			output.setMessage("Employees saved successfully");
+			LOGGER.debug("Employees saved successfully");
 			System.out.println("Employees saved successfully");
 			
 			}
@@ -76,6 +92,7 @@ public class EmployeeDetailsController {
 			output.setData(employeeTO);
 			output.setMessage("Employees could not be saved");
 			output.setStatus(JSONOutputEnum.FAILURE.getValue());
+			LOGGER.debug("Employees could not be saved");
 			System.out.println("Employees could not be saved");
 		}
 		return output;
@@ -92,12 +109,14 @@ public class EmployeeDetailsController {
 		if(!employeeTOList.isEmpty()  && employeeTOList.size()>0) {
 			output.setData(employeeTOList);
 			output.setStatus(JSONOutputEnum.SUCCESS.getValue());
+			LOGGER.debug("Employees fetched successfully");
 			output.setMessage("Employees fetched successfully");
 		}
 		
 		else {
 			output.setData(employeeTOList);
 			output.setStatus(JSONOutputEnum.FAILURE.getValue());
+			LOGGER.debug("No employee to fetch");
 			output.setMessage("No employee to fetch");
 		}
 		
@@ -186,6 +205,35 @@ public class EmployeeDetailsController {
 		
 		return viewTeamTO;
 		
+	}
+	
+	
+	@ResponseBody
+	@RequestMapping(value="/cat/peers/{empId}",method=RequestMethod.GET)
+	@CrossOrigin
+	public JSONOutputModel getAllPeers(@PathVariable("empId")String empId){
+		JSONOutputModel output= new JSONOutputModel();
+		List<EmployeeTO> employeeTOList=employeeDetailService.getAllPeers(empId);
+		
+		if(employeeTOList!=null && !employeeTOList.isEmpty())
+		{
+			output.setData(employeeTOList);
+			LOGGER.debug("Peers fetched successfully");
+			output.setMessage("Peers fetched successfully");
+			output.setStatus(JSONOutputEnum.SUCCESS.getValue());
+		}
+		else if(employeeTOList==null) {
+			LOGGER.debug("Invalid parameters");
+			output.setMessage("Invalid parameters");
+			output.setStatus(JSONOutputEnum.FAILURE.getValue());
+		}
+		else {
+			LOGGER.debug("No peer found");
+			output.setMessage("No peer found");
+			output.setStatus(JSONOutputEnum.FAILURE.getValue());
+		}
+		
+		return output;
 	}
 	
 }

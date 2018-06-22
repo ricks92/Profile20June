@@ -12,6 +12,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "employee_details")
@@ -71,6 +74,21 @@ public class EmployeeDetails {
 			CascadeType.REFRESH },mappedBy="employees")
 	private List<Skill> skills;*/
 	
+	//@JoinColumn(name = "emp_id")
+	@OneToOne(fetch = FetchType.LAZY,mappedBy="employeeDetails", cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH,
+		CascadeType.REFRESH })
+	
+	@JsonIgnore
+	private ProfileEntity profileEntity;
+	
+	public UserDetails getUserDetails() {
+		return userDetails;
+	}
+
+	public void setUserDetails(UserDetails userDetails) {
+		this.userDetails = userDetails;
+	}
+
 	public String getEmpid() {
 		return empid;
 	}
@@ -175,6 +193,16 @@ public class EmployeeDetails {
 		this.approvalStatus = approvalStatus;
 	}
 
+	public ProfileEntity getProfileEntity() {
+		return profileEntity;
+	}
 
+	public void setProfileEntity(ProfileEntity profileEntity) {
+		this.profileEntity = profileEntity;
+	}
+
+
+	
+	
 	
 }

@@ -25,14 +25,18 @@ import com.hsc.cat.VO.UpdateSkillVO;
 import com.hsc.cat.email.MailSender;
 import com.hsc.cat.entity.EmployeeDetails;
 import com.hsc.cat.entity.EmployeeSkillEntity;
+import com.hsc.cat.entity.ProfileEntity;
 import com.hsc.cat.entity.UserDetails;
 import com.hsc.cat.enums.ApprovalStatusEnum;
+import com.hsc.cat.enums.RoleCategoryEnum;
 import com.hsc.cat.map.FetchMapService;
 import com.hsc.cat.repository.EmployeeDetailRepository;
 import com.hsc.cat.repository.EmployeeSkillRepository;
+import com.hsc.cat.repository.ProfileRepository;
 import com.hsc.cat.repository.UserRepository;
 import com.hsc.cat.utilities.JSONOutputEnum;
 import com.hsc.cat.utilities.Roles;
+
 
 
 @Service
@@ -45,6 +49,9 @@ public class EmployeeDetailService {
 	
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private ProfileRepository profileRepository;
 	
 	@Autowired
     @Qualifier("javasampleapproachMailSender")
@@ -71,6 +78,7 @@ public class EmployeeDetailService {
 	      
 		EmployeeDetails emp= new EmployeeDetails();
 		UserDetails user = new UserDetails();
+		ProfileEntity profileEntity=new ProfileEntity();
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		
 			Date d1 = new Date();
@@ -103,6 +111,14 @@ public class EmployeeDetailService {
 		emp.setEmail(evo.getEmail());
 		emp.setEmpid(evo.getUsername());
 		
+		
+		profileEntity.setFirstname(emp.getFirstName());
+		profileEntity.setLastname(emp.getLastName());
+		profileEntity.setEmail(emp.getEmail());
+		profileEntity.setEmpId(emp.getEmpid());
+		profileEntity.setCreationDate(d1);
+		
+		
 		if(evo.getRole().equals(Roles.MANAGER)){ //That is it is a manager
 			emp.setApprovalStatus(ApprovalStatusEnum.PENDING.getStatus());
 			
@@ -114,10 +130,13 @@ public class EmployeeDetailService {
 			String body = "Request came to register manager with employee id:"+evo.getUsername()+"\nDetails: \nEmployee id: "+evo.getUsername()+"\nFirst Name: "+evo.getFirstName()+"\nLast Name: "+evo.getLastName()+"\nEmail: "+evo.getEmail()+"\nPlease verify: 'http://localhost:8030/verifyManager/'"+evo.getUsername();
 			
 			mailSender.sendMail(from, to, subject, body); //send email
-			  user.setEmployeeDetails(emp);  //save manager
+			  //user.setEmployeeDetails(emp);  //save manager---------
+			  emp.setUserDetails(user);
 			 userRepository.save(user);
+			 emp.setProfileEntity(profileEntity);
 			 saved = employeeDetailRepository.save(emp);
-			
+			/*ProfileEntity savedProfile=profileRepository.save(profileEntity);
+			emp.setProfileEntity(savedProfile);*/
 		}
 		
 //		else{
@@ -135,13 +154,17 @@ public class EmployeeDetailService {
 //			}
 			//else if(employeeDetailRepository.exists(emp.getManagerId())) {
 				emp.setApprovalStatus(ApprovalStatusEnum.NA.getStatus());
-				user.setEmployeeDetails(emp);
+//				/user.setEmployeeDetails(emp);
+				 emp.setUserDetails(user);
+				 userRepository.save(user);
+				 emp.setProfileEntity(profileEntity);
+				 saved = employeeDetailRepository.save(emp);
+				/* ProfileEntity savedProfile=profileRepository.save(profileEntity);
+					emp.setProfileEntity(savedProfile);*/
+				 /*user.setEmployeeDetails(emp);
 				 userRepository.save(user);
 				 saved = employeeDetailRepository.save(emp);
-				 user.setEmployeeDetails(emp);
-				 userRepository.save(user);
-				 saved = employeeDetailRepository.save(emp);
-				
+				*/
 				//}
 		}
 //		else {
@@ -271,7 +294,29 @@ public class EmployeeDetailService {
 	}
 	
 	
-	
+	public List<EmployeeTO> getAllPeers(String empId){
+		
+		List<EmployeeDetails> employeesWithGivenId=employeeDetailRepository.findByEmpid(empId);
+		
+		if(employeesWithGivenId==null || employeesWithGivenId.isEmpty()) {
+			return null;
+		}
+		List<EmployeeTO> employeeTOList = new ArrayList<>();
+		List<EmployeeDetails> employeeList = employeeDetailRepository.getAllPeers(empId);
+		
+		for(int i=0;i<employeeList.size();i++) {
+			EmployeeDetails employeeDetails=employeeList.get(i);
+			UserDetails user=userRepository.findByUsername(employeeDetails.getEmpid());
+			//We don't want managers as peers
+			if(!(user.getRole().equalsIgnoreCase("ROLE_EMPLOYEE"))){
+				continue;
+			}
+			EmployeeTO employeeTO=modelConversion(employeeDetails);
+			employeeTOList.add(employeeTO);
+		}
+		
+		return employeeTOList;
+	}
 	
 	
 	public EmployeeTO modelConversion(EmployeeDetails e){

@@ -25,6 +25,8 @@ import com.hsc.cat.utilities.JSONOutputEnum;
 import com.hsc.cat.utilities.JSONOutputModel;
 import com.hsc.cat.utilities.RESTURLConstants;
 
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @CrossOrigin
 public class SkillController {
@@ -34,6 +36,8 @@ public class SkillController {
 	
 	@Autowired
 	private SkillService skillService;
+	
+	@ApiOperation(value="Add a new skill to database")
 	@ResponseBody
 	@RequestMapping(value=RESTURLConstants.SKILLS,method=RequestMethod.POST)
 	@CrossOrigin
@@ -67,7 +71,7 @@ public class SkillController {
 		return output;
 	}
 	
-	
+	@ApiOperation(value="Fetch all the skills from database")
 	@ResponseBody
 	@RequestMapping(value=RESTURLConstants.SKILLS,method=RequestMethod.GET)
 	@CrossOrigin
@@ -116,7 +120,7 @@ public class SkillController {
 	}
 	
 	
-	
+	@ApiOperation(value="Fetch all skills in a given category")
 	@ResponseBody
 	@RequestMapping(value=RESTURLConstants.FETCH_SKILLS_IN_A_CATEGORY,method=RequestMethod.GET)
 	@CrossOrigin
@@ -137,7 +141,7 @@ public class SkillController {
 		return output;
 	}
 	
-	
+	@ApiOperation(value="Fetch all skills in a given category and subcategory")
 	@ResponseBody
 	@RequestMapping(value=RESTURLConstants.FETCH_SKILLS_IN_A_CATEGORY_SUBCATEGORY,method=RequestMethod.GET)
 	@CrossOrigin

@@ -1,3 +1,22 @@
+/**
+**********************************************************************************************************
+--  FILENAME		: FetchMapService3.java
+--  DESCRIPTION		: Service class for displaying dashboard of employees
+--
+--  Copyright		: Copyright (c) 2018.
+--  Company			: HSC
+--
+--  Revision History
+-- --------------------------------------------------------------------------------------------------------
+-- |VERSION |      Date                              |      Author              |      Reason for Changes                                         |
+-- --------------------------------------------------------------------------------------------------------
+-- |  0.1   |   June 14, 2018                         |     Richa Anand      |       Initial draft                                                        |
+-- --------------------------------------------------------------------------------------------------------
+--
+************************************************************************************************************
+**/
+
+
 package com.hsc.cat.map3;
 
 import java.util.ArrayList;
@@ -181,7 +200,7 @@ public class FetchMapService3 {
 		return fetchMapTO;*/
 		
 		FetchMapTO3 fetchMapTO = new FetchMapTO3();
-		LOGGER.debug("Incoming request to fetch map for empId:"+newFetchMapVO.getEmpId()+" and SDLC category:"+SdlcCategory.getSdlcCategoryName(newFetchMapVO.getSdlcCategory()));
+		LOGGER.debug("Incoming request to fetch map for empId:"+newFetchMapVO.getEmpId()+" and SDLC category:"+SdlcCategory.getSdlcCategoryName(newFetchMapVO.getSdlcCategory())  +" and year:"+newFetchMapVO.getYear()+" and quarter:"+newFetchMapVO.getQuarter() );
 		
 		String empId=newFetchMapVO.getEmpId();
 		int quarter=newFetchMapVO.getQuarter();
